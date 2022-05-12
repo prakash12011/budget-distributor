@@ -4,16 +4,74 @@
 import { ref } from 'vue'
 
 const amount = ref(0);
+const percAmount = ref(0);
+percAmount.value = [];
 
-console.log(localStorage);
+const percentageArr = ref(0);
+percentageArr.value = [];
+
+const percentage = ref(0);
+percentage.value = localStorage.getItem('percentage');
+if( percentage.value ) {
+  percentageArr.value = JSON.parse(percentage.value);
+}
+
+const addItem = () => percentageArr.value.push({
+  name: '',
+  val: ''
+});
+
+const saveData = () => {
+  const data = percentageArr.value
+  localStorage.setItem('percentage', JSON.stringify(data));
+  percentage.value = JSON.stringify(data);
+  percentageArr.value = JSON.parse(percentage.value);
+}
+
+const convertData = () => {
+  percentageArr.value.forEach(el => {
+    percAmount.value.push({
+      name: el.name,
+      val: (amount.value / 100) * el.val
+    })
+  });
+}
 </script>
 
 <template>
-  <h2>Enter Amount </h2>
-  <input type="number" name="amount" id="amount" v-model="amount" />
+  <div v-if="percentage" class="amount-container">
+    <h2>Enter Amount </h2>
+    <input type="number" name="amount" id="amount" v-model="amount" />
+    <button v-show="percentageArr.length > 0" @click="convertData">Convert into percentage</button>
+  </div>
+  
+  <div class="percentage-setup" v-if="!percentage">
+    <button @click="addItem">Add new</button>
+    <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
+      <p>Enter percentage label <input type="text" v-model="item.name"></p>
+      <p>Enter percentage <input type="number" v-model="item.val"></p>
+    </div>
+    <button v-show="percentageArr.length > 0" @click="saveData">Save Data</button>
+  </div>
+
+  <div class="percentage-val" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
+    {{`${item.name}: ${item.val}`}}
+  </div>
+
+  <div class="percentage-val" v-for="(perc, percIndex) in percAmount" :key="percIndex">
+    {{`${perc.name}: ${perc.val}`}}
+  </div>
 </template>
 
 <style>
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
