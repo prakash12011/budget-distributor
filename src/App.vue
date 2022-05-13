@@ -37,6 +37,10 @@ const saveData = () => {
 }
 
 const convertData = () => {
+  if ( !amount.value ) {
+    showNotification('Enter a valid Number');
+    return
+  }
   var sum = 0
   percentageArr.value.forEach(el => {
     let val = (amount.value / 100) * el.val
@@ -85,7 +89,7 @@ const editPercentage = () => {
     <button v-show="percentageArr.length > 0" @click="editPercentage">Edit percentage</button>
   </div>
   
-  <div class="percentage-setup" v-if="!percentage && !editMode">
+  <div class="percentage-setup" v-if="!percentage">
     <button @click="addItem">Add new</button>
     <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
       <p>Enter percentage label <input type="text" v-model="item.name"></p>
@@ -94,15 +98,7 @@ const editPercentage = () => {
     <button v-show="percentageArr.length > 0" @click="saveData">Save Data</button>
   </div>
 
-  <div class="percentage-setup" v-if="!percentage && editMode">
-    <button @click="addItem">Add new</button>
-    <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
-      <p>Enter percentage label <input type="text" v-model="item.name"></p>
-      <p>Enter percentage <input type="number" v-model="item.val"></p>
-    </div>
-    <button v-show="percentageArr.length > 0" @click="saveData">Save Data</button>
-  </div>
-<!-- 
+  <!-- 
   <div class="percentage-val" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
   <div class="percentage-val" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
     {{`${item.name}: ${item.val}`}}
