@@ -3,10 +3,24 @@
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import { ref } from 'vue'
 
+function createDebounce() {
+  let initTimeout;
+
+  return function (fn, delay) {
+    clearTimeout(initTimeout);
+    initTimeout = setTimeout(() => {
+      fn();
+    }, delay || 300);
+  }
+}
+
 const amount = ref(0);
 const notification = ref(0);
 const editMode = ref(0);
 const percAmount = ref(0);
+const totalPercAmount = ref(0);
+const debounce = createDebounce();
+
 percAmount.value = [];
 
 const percentageArr = ref(0);
@@ -23,6 +37,7 @@ const addItem = () => {
     showNotification(`You can't add values more then 100%`);
     return
   }
+  editMode.value = true
   percentageArr.value.push({
     name: '',
     val: ''
@@ -30,10 +45,15 @@ const addItem = () => {
 }
 
 const saveData = () => {
+  if(getPercentageSum() >= 100) {
+    showNotification(`You can't add values more then 100%`);
+    return
+  }
   const data = percentageArr.value
   localStorage.setItem('percentage', JSON.stringify(data));
   percentage.value = JSON.stringify(data);
   percentageArr.value = JSON.parse(percentage.value);
+  editMode.value = false
 }
 
 const convertData = () => {
@@ -75,6 +95,13 @@ const editPercentage = () => {
   percAmount.value = []
   editMode.value = true
 }
+
+const addTotal = (val) => {
+  if (!val) return
+  debounce( () => {
+    totalPercAmount.value += val
+  }, 100);
+}
 </script>
 
 <template>
@@ -90,10 +117,11 @@ const editPercentage = () => {
   </div>
   
   <div class="percentage-setup" v-if="!percentage">
-    <button @click="addItem">Add new</button>
+    <button @click="addItem">Add new</button> 
+    <span v-if="editMode">Total Percentage{{totalPercAmount}}</span>
     <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
       <p>Enter percentage label <input type="text" v-model="item.name"></p>
-      <p>Enter percentage <input type="number" v-model="item.val"></p>
+      <p>Enter percentage <input type="number" @input="addTotal(item.val)" v-model="item.val"></p>
     </div>
     <button v-show="percentageArr.length > 0" @click="saveData">Save Data</button>
   </div>
