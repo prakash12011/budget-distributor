@@ -91,6 +91,7 @@ const showNotification = (mes, time = 2000) => {
 }
 
 const editPercentage = () => {
+  totalPercAmount.value = getPercentageSum()
   percentage.value = ''
   percAmount.value = []
   editMode.value = true
@@ -99,7 +100,7 @@ const editPercentage = () => {
 const addTotal = (val) => {
   if (!val) return
   debounce( () => {
-    totalPercAmount.value += val
+    totalPercAmount.value = getPercentageSum()
   }, 100);
 }
 </script>
@@ -118,7 +119,7 @@ const addTotal = (val) => {
   
   <div class="percentage-setup" v-if="!percentage">
     <button @click="addItem">Add new</button> 
-    <span v-if="editMode">Total Percentage{{totalPercAmount}}</span>
+    <span v-if="editMode">Total Percentage {{totalPercAmount}}</span>
     <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
       <p>Enter percentage label <input type="text" v-model="item.name"></p>
       <p>Enter percentage <input type="number" @input="addTotal(item.val)" v-model="item.val"></p>
