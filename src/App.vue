@@ -15,7 +15,7 @@ function createDebounce() {
 }
 
 const amount = ref(0);
-const notification = ref(0);
+const notification = ref({});
 const editMode = ref(0);
 const percAmount = ref(0);
 const totalPercAmount = ref(0);
@@ -46,7 +46,7 @@ const addItem = () => {
 
 const saveData = () => {
   if(getPercentageSum() >= 100) {
-    showNotification(`You can't add values more then 100%`);
+    showNotification(`You can't add values more then 100%`, 'error');
     return
   }
   const data = percentageArr.value
@@ -79,15 +79,12 @@ const convertData = () => {
   }
 }
 
-const getPercentageSum = () => {
-  var sum = 0;
-  percentageArr.value.forEach(el => sum += el.val)
-  return sum
-}
+const getPercentageSum = () => percentageArr.value.reduce((acc, curr) => acc + curr.val, 0);
 
-const showNotification = (mes, time = 2000) => {
-  notification.value = mes
-  setTimeout(() => notification.value = '', time);
+const showNotification = (mes, type = 'info', time = 2000) => {
+  notification.value.message = mes
+  notification.value.type = type
+  setTimeout(() => notification.value.message = '', time);
 }
 
 const editPercentage = () => {
@@ -97,17 +94,17 @@ const editPercentage = () => {
   editMode.value = true
 }
 
-const addTotal = (val) => {
+const addToTotal = (val) => {
   if (!val) return
-  debounce( () => {
-    totalPercAmount.value = getPercentageSum()
-  }, 100);
+  debounce( () => totalPercAmount.value = getPercentageSum(), 100);
 }
 </script>
 
 <template>
-  <div v-if="notification" class="notification">
-    <span v-html="notification"></span>
+  <div v-if="notification.message" class="notification">
+    <span v-html="notification.message"
+      :style="`color: ${notification.type == 'error' ? 'red' : ''}`"
+    ></span>
   </div>
 
   <div v-if="percentage" class="amount-container">
@@ -119,20 +116,16 @@ const addTotal = (val) => {
   
   <div class="percentage-setup" v-if="!percentage">
     <button @click="addItem">Add new</button> 
-    <span v-if="editMode">Total Percentage {{totalPercAmount}}</span>
+    <span v-if="editMode" 
+      :style="`color: ${totalPercAmount > 100 ? 'red' : ''}`"
+    >Total Percentage {{totalPercAmount}}</span>
     <div class="percentage-item" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
       <p>Enter percentage label <input type="text" v-model="item.name"></p>
-      <p>Enter percentage <input type="number" @input="addTotal(item.val)" v-model="item.val"></p>
+      <p>Enter percentage <input type="number" @input="addToTotal(item.val)" v-model="item.val"></p>
     </div>
     <button v-show="percentageArr.length > 0" @click="saveData">Save Data</button>
   </div>
-
-  <!-- 
-  <div class="percentage-val" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
-  <div class="percentage-val" v-for="(item, itemIndex) in percentageArr" :key="itemIndex">
-    {{`${item.name}: ${item.val}`}}
-  </div> -->
-
+  
   <div class="percentage-val" v-for="(perc, percIndex) in percAmount" :key="percIndex">
     {{`${perc.name}: ${perc.val}`}}
   </div>
