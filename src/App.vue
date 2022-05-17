@@ -1,4 +1,5 @@
 <script setup>
+import PieChart from './components/PieChart.vue'
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import { ref } from 'vue'
@@ -128,6 +129,10 @@ const addToTotal = (val) => {
   
   <div class="percentage-val" v-for="(perc, percIndex) in percAmount" :key="percIndex">
     {{`${perc.name}: ${perc.val}`}}
+  </div>
+
+  <div style="max-width: 30%; margin: 50px auto 0" v-if="(amount && percAmount.length > 0) && !editMode">
+    <PieChart :data="percAmount"/>
   </div>
 </template>
 
