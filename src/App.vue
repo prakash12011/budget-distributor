@@ -46,7 +46,7 @@ const addItem = () => {
 }
 
 const saveData = () => {
-  if(getPercentageSum() >= 100) {
+  if(getPercentageSum() > 100) {
     showNotification(`You can't add values more then 100%`, 'error');
     return
   }
